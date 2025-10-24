@@ -9,5 +9,5 @@ def get_health():
     
     return create_api_response(
         status="success",
-        message="RAG AI API WORKING",
+        message="RAG API endpoint Active"
     )
