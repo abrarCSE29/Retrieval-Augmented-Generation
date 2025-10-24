@@ -3,10 +3,10 @@
 
 def extract_text_from_pdf(pdf_file):
     """
-    The function receives a pdf file/pdf_file path as input, extracts text and returns the extracted text.
-    Args :
-        pdf_file : file / path of a pdf file
-    Returns :
+    The function receives a pdf pdf_file path as input, extracts text and returns the extracted text.
+    Args:
+        pdf_file(str) : path of a pdf file
+    Returns:
         extracted_text : text extracted from the pdf_file
     """
     import fitz
