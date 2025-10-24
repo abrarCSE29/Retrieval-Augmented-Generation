@@ -11,12 +11,11 @@ def generate_embedding(text_chunks: list, model_name: str = 'all-MiniLM-L6-v2'):
     if not text_chunks:
         return []
     
-    # Generate embeddings with progress bar for large batches
     vector_embeddings = model.encode(
         text_chunks,
         convert_to_numpy=True,
         show_progress_bar=len(text_chunks) > 100,
-        batch_size=32  # Adjust based on your GPU/CPU
+        batch_size=32
     )
     
     return vector_embeddings
