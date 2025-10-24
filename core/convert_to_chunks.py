@@ -1,6 +1,6 @@
 import re
 
-def convert_text_into_chunks(texts: str, chunk_len: int = 500, overlap: int = 100) -> list:
+def convert_text_into_chunks(text: str, chunk_len: int = 500, overlap: int = 100) -> list:
     """
     Convert input text into overlapping chunks for embedding or RAG purposes.
 
@@ -13,25 +13,25 @@ def convert_text_into_chunks(texts: str, chunk_len: int = 500, overlap: int = 10
         list[str]: A list of text chunks.
     """
     # Normalize spaces and clean text
-    texts = re.sub(r'\s+', ' ', texts).strip()
+    text = re.sub(r'\s+', ' ', text).strip()
 
-    if len(texts) <= chunk_len:
-        return [texts]
+    if len(text) <= chunk_len:
+        return [text]
 
     chunks = []
     start = 0
-    text_length = len(texts)
+    text_length = len(text)
 
     while start < text_length:
         end = start + chunk_len
 
         # Avoid cutting mid-sentence if possible
         if end < text_length:
-            next_period = texts.rfind('.', start, end)
+            next_period = text.rfind('.', start, end)
             if next_period != -1 and next_period > start + chunk_len * 0.5:
                 end = next_period + 1
 
-        chunks.append(texts[start:end].strip())
+        chunks.append(text[start:end].strip())
         start = end - overlap  # create overlap for context
 
     return chunks
