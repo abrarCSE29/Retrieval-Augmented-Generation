@@ -6,6 +6,11 @@ from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams, PointStruct
 from qdrant_client.http.exceptions import UnexpectedResponse
 
+from core.generate_embedding_on_chunks import generate_embedding
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 class Qdrant_VDB:
     """
     Implements the storing and retrieving logic of vector embeddings in a Qdrant database.
@@ -51,9 +56,9 @@ class Qdrant_VDB:
                         distance=Distance.COSINE  # Common for text embeddings
                     )
                 )
-                print(f"Created collection: {self.collection_name}")
+                logger.info(f"Created collection: {self.collection_name}")
             else:
-                print(f"Collection {self.collection_name} already exists")
+                logger.debug(f"Collection {self.collection_name} already exists")
         except UnexpectedResponse as e:
             raise Exception(f"Failed to create/check collection: {e}")
 
@@ -111,7 +116,83 @@ class Qdrant_VDB:
                 collection_name=self.collection_name,
                 points=points
             )
-            print(f"Stored {len(points)} embeddings for document_id {document_id} in collection {self.collection_name}")
+            logger.info(f"Stored {len(points)} embeddings for document_id {document_id} in collection {self.collection_name}")
             return point_ids
         except UnexpectedResponse as e:
             raise Exception(f"Failed to store embeddings for document_id {document_id}: {e}")
+        
+
+    def retrieve_document_embeddings(
+            self,
+            user_query : str):
+        """
+        Retrieves related document chunks against user query from qdrant db
+
+        Args:
+            user_query (str) : users query string
+        Returns:
+            str: Concatenated text chunks relevant to the query
+        """
+        try:
+            # Generate embedding for the query (returns 2D array for batch, take first [0] for 1D)
+            query_vector = generate_embedding([user_query])[0]
+            logger.debug(f"Generated query vector with shape {query_vector.shape}")
+
+            # Query the vector database
+            results = self.client.query_points(
+                collection_name=self.collection_name,
+                query=query_vector,
+                limit=5  # Return 5 closest points
+            )
+
+            # Handle different response formats
+            if hasattr(results, 'points'):
+                hits = results.points
+            elif isinstance(results, list):
+                hits = results
+            else:
+                logger.warning(f"Unexpected query_points return type: {type(results)}")
+                hits = []
+
+            logger.info(f"Retrieved {len(hits)} similar vectors for query")
+            return self.extract_text_chunk(hits)
+
+        except Exception as e:
+            logger.error(f"Failed to retrieve embeddings for query '{user_query[:50]}...': {e}", exc_info=True)
+            return ""
+    
+
+    def extract_text_chunk(self, hits):
+        """
+        Extracts text chunks from the similar vector embeddings and orders them by chunk_index.
+
+        Args:
+            hits: List of ScoredPoint objects containing payload with text and chunk_index.
+
+        Returns:
+            str: Concatenated text strings ordered by chunk_index.
+        """
+        if not hits:
+            logger.debug("No hits found, returning empty string")
+            return ""
+
+        try:
+            # Extract payload from hits and sort by chunk_index
+            sorted_chunks = sorted(
+                [hit.payload for hit in hits],
+                key=lambda x: x['chunk_index']
+            )
+
+            text = ""
+            for chunk in sorted_chunks:
+                if 'text' in chunk:
+                    text += chunk['text'] + "\n"
+
+            # Remove trailing newline
+            text = text.rstrip()
+            logger.debug(f"Extracted {len(text)} characters from {len(sorted_chunks)} chunks")
+            return text
+
+        except Exception as e:
+            logger.error(f"Error extracting text from chunks: {e}", exc_info=True)
+            return ""

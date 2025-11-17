@@ -1,4 +1,8 @@
 import re
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 def convert_text_into_chunks(text: str, chunk_len: int = 500, overlap: int = 100) -> list:
     """
@@ -12,10 +16,13 @@ def convert_text_into_chunks(text: str, chunk_len: int = 500, overlap: int = 100
     Returns:
         list[str]: A list of text chunks.
     """
+    logger.debug(f"Converting text to chunks with chunk_len={chunk_len}, overlap={overlap}")
+
     # Normalize spaces and clean text
     text = re.sub(r'\s+', ' ', text).strip()
 
     if len(text) <= chunk_len:
+        logger.debug(f"Text length {len(text)} <= chunk size, returning single chunk")
         return [text]
 
     chunks = []
@@ -34,4 +41,5 @@ def convert_text_into_chunks(text: str, chunk_len: int = 500, overlap: int = 100
         chunks.append(text[start:end].strip())
         start = end - overlap  # create overlap for context
 
+    logger.info(f"Converted {len(text)} characters into {len(chunks)} chunks")
     return chunks

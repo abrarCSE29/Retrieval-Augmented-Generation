@@ -12,3 +12,5 @@ resources
 *cache
 test.py
 .env
+memory-bank
+.*
