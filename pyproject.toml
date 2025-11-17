@@ -10,7 +10,9 @@ dependencies = [
     "pymupdf>=1.26.5",
     "pytest>=8.4.2",
     "python-dotenv>=1.1.1",
+    "python-multipart>=0.0.20",
     "qdrant-client>=1.15.1",
+    "sentry-sdk[fastapi]>=2.19.0",
     "sentence-transformers>=5.1.2",
     "uvicorn>=0.38.0",
 ]
