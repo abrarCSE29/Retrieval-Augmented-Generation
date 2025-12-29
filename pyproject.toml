@@ -15,4 +15,8 @@ dependencies = [
     "sentry-sdk[fastapi]>=2.19.0",
     "sentence-transformers>=5.1.2",
     "uvicorn>=0.38.0",
+    # LangChain and Google AI dependencies for enhanced response generation
+    "langchain>=0.2.0",
+    "langchain-google-genai>=1.0.0",
+    "langchain-core>=0.2.0",
 ]

@@ -15,6 +15,9 @@ This RAG system addresses key limitations of Large Language Models by:
 
 - PDF Document Processing: Extract and process text from PDF files
 - Semantic Search: Vector-based similarity search using sentence transformers
+- **Enhanced Response Generation**: LLM-powered answers using Google Generative AI
+- **Modular LLM Architecture**: Support for multiple LLM providers (Google, OpenAI, etc.)
+- **Prompt Management**: Organized prompt templates for consistent responses
 - High Performance: FastAPI-based async API with sub-second query responses
 - Vector Storage: Qdrant integration for efficient similarity search
 - Comprehensive Logging: Structured logging with Sentry integration
